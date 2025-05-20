@@ -21,7 +21,3 @@ export interface FirebaseContextType {
   updateConfig: (newConfig: FirebaseConfig) => void;
   signIn: (email: string, password: string) => Promise<void>;
 }
-
-export interface Window {
-  firebaseConfig?: FirebaseConfig
-}

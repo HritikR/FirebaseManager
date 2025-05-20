@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Window } from "@/types"
 import { AlertCircle, Upload } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useFirebaseConfig } from "../providers/ConfigProvider"
@@ -17,32 +16,26 @@ interface FirebaseConfigUploaderProps {
 }
 
 export function FirebaseConfigUploader({ onConfigUploaded }: FirebaseConfigUploaderProps) {
-  const { setConfig } = useFirebaseConfig()
+  const { config, setConfig } = useFirebaseConfig()
   const [configText, setConfigText] = useState("")
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const checkConfig = () => {
-      const config = (window as Window).firebaseConfig;
-      if (!configText && typeof config !== "undefined") {
-        setConfig(config);
-        onConfigUploaded();
-        return true;
-      }
-      return false;
-    };
-
-    if (checkConfig()) return;
-
+    if (config) return;
+    console.log("Paste your Firebase config JSON in the console")
     const timer = setInterval(() => {
-      if (checkConfig()) {
+      // @ts-expect-error firebaseConfig will be injected by user via devtools
+      if (typeof firebaseConfig !== "undefined" && firebaseConfig !== null) {
+        // @ts-expect-error firebaseConfig will be injected by user via devtools
+        setConfig(firebaseConfig);
+        onConfigUploaded();
         clearInterval(timer);
       }
     }, 1000);
 
     return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [configText]);
+  }, [config, setConfig, onConfigUploaded]);
+
 
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
